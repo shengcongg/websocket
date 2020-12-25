@@ -1,2 +1,2 @@
 # websocket
-A simple WebSocket client for front-end
+A naive WebSocket client for front-end.
