@@ -10,9 +10,9 @@ export default {
         let reconnectCount = 0;
         let consumersArray = [];
 
-        manager.createConnection = wsUrl => {
+        clientManager.createConnection = wsUrl => {
             return new Promise(async (resolve, reject) => {
-                manager.wsUrl = wsUrl;
+                clientManager.wsUrl = wsUrl;
                 let ws;
                 try {
                     ws = clientManager.ws = await connect(wsUrl);
@@ -28,7 +28,7 @@ export default {
             return new Promise(async (resolve, reject) => {
                 let ws;
                 try {
-                    ws = await new WebSocket(manager.wsUrl);
+                    ws = await new WebSocket(clientManager.wsUrl);
                 } catch (err) {
                     return Promise.reject(new Error(err));
                 }
@@ -78,16 +78,16 @@ export default {
             });
         };
 
-        manager.disconnect = () => {
+        clientManager.disconnect = () => {
             let ws = clientManager.ws;
             reconnectFlag = false;
             if (ws) {
                 ws.close();
-                console.info("[WebSocket] Connection closed: " + manager.wsUrl + ".")
+                console.info("[WebSocket] Connection closed: " + clientManager.wsUrl + ".")
             }
         };
 
-        onmessageHandler = msgEvt => {
+        let onmessageHandler = msgEvt => {
             let response = JSON.parse(msgEvt.data);
             for (
                 let index = 0;
@@ -98,25 +98,25 @@ export default {
             }
         };
 
-        oncloseHandler = closeEvt => {
+        let oncloseHandler = closeEvt => {
             console.info(closeEvt);
             if (reconnectFlag) {
                 reconnect();
             }
         };
 
-        manager.send = contentAnyType => {
+        clientManager.send = contentAnyType => {
             if (clientManager.ws) {
                 clientManager.ws.send(contentAnyType);
             }
         };
 
-        manager.addMessageConsumer = consumer => {
+        clientManager.addMessageConsumer = consumer => {
             consumersArray.push(consumer);
             console.info("consumer added", consumersArray.length)
         };
 
-        manager.removeMessageConsumer = consumer => {
+        clientManager.removeMessageConsumer = consumer => {
             for (
                 let index = 0;
                 index < consumersArray.length;
@@ -131,11 +131,11 @@ export default {
                 }
             }
         };
-        manager.clearMessageConsumer = () => {
+        clientManager.clearMessageConsumer = () => {
             consumersArray = [];
             console.info("consumer cleared", consumersArray.length)
         };
 
-        return manager;
+        return clientManager;
     }
 };
